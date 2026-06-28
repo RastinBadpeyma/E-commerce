@@ -17,12 +17,57 @@ export class PrismaOtpRepositories implements IOtpRepository {
       }
         })
     }
-    findValidOtp(phoneNumber: string, code: string): Promise<Otp | null> {
-        throw new Error("Method not implemented.");
-    }
-    markAsUsed(id: string): Promise<void> {
-        throw new Error("Method not implemented.");
+
+
+  async findLatestByPhone(
+    phone: string,
+  ): Promise<Otp | null> {
+
+    const otp =
+      await this.prisma.otpCode.findFirst({
+
+        where: {
+          phoneNumber: phone,
+        },
+
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+    if (!otp) {
+      return null;
     }
 
+        return otp ? this.toDomain(otp) : null;
+  }
+
+
+    async markAsUsed(id: string): Promise<void> {
+        await this.prisma.otpCode.update({
+            where: {
+                id,
+            },
+            data: {
+                usedAt: new Date(),
+            },
+        });
+    }
+
+    private toDomain(otp: {
+        id: string;
+        phoneNumber: string;
+        code: string;
+        expiresAt: Date;
+        usedAt: Date | null;
+    }): Otp {
+        return new Otp(
+            otp.id,
+            otp.phoneNumber,
+            otp.code,
+            otp.expiresAt,
+            otp.usedAt,
+        );
+    }
 
 }

@@ -7,10 +7,9 @@ export interface IOtpRepository {
     expiresAt: Date;
   }): Promise<void>;
 
-  findValidOtp(
-    phoneNumber: string,
-    code: string,
-  ): Promise<Otp | null>;
+   findLatestByPhone(
+    phoneNumber:string
+ ):Promise<Otp|null>;
 
   markAsUsed(id: string): Promise<void>;
 }
