@@ -2,8 +2,8 @@ import { Inject, Injectable } from "@nestjs/common";
 import { IOtpRepository } from "src/modules/identity/domain/repositories/otp.repositories";
 import { IRefreshTokenRepository } from "src/modules/identity/domain/repositories/refresh-token.repositories";
 import { IUserRepository } from "src/modules/identity/domain/repositories/user.repository";
-import { HashService } from "../../interfaces/hash-service";
 import { TokenService } from "../../interfaces/token-service";
+import { HashService } from "src/modules/identity/infrastructure/services/hash.service";
 
 @Injectable()
 export class VerifyOtpUseCase{
@@ -20,7 +20,7 @@ export class VerifyOtpUseCase{
     @Inject('TokenService')
     private readonly tokenService:TokenService,
 
-    @Inject('HashService')
+    @Inject('IHashService')
     private readonly hashService:HashService
     ){}
     

@@ -7,7 +7,10 @@ export interface IRefreshTokenRepository {
     expiresAt: Date;
   }): Promise<void>;
 
+  save(
+     token:RefreshToken
+  ):Promise<void>;
+
   findByHash(hash: string): Promise<RefreshToken | null>;
 
-  revoke(id: string): Promise<void>;
 }

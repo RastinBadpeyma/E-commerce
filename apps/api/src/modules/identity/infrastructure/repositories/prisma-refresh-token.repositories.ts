@@ -10,7 +10,7 @@ export class PrismaRefreshTokenRepositories implements IRefreshTokenRepository {
         private readonly prisma: PrismaService,
     ) {}
 
-    async create(data: {
+  async create(data: {
         userId: string;
         tokenHash: string;
         expiresAt: Date;
@@ -24,45 +24,50 @@ export class PrismaRefreshTokenRepositories implements IRefreshTokenRepository {
         });
     }
 
-    async findByHash(hash: string): Promise<RefreshToken | null> {
-        const refreshToken = await this.prisma.refreshToken.findUnique({
-            where: {
-                tokenHash: hash,
-            },
-            include: {
-                user: true,
-            },
-        });
+  async save(refreshToken: RefreshToken): Promise<void> {
+    await this.prisma.refreshToken.update({
+      where: {
+        id: refreshToken.id,
+      },
+      data: {
+        revokedAt: refreshToken.revokedAt,
+      },
+    });
+  }
 
-        if (!refreshToken) {
-            return null;
-        }
 
-        return new RefreshToken(
-            refreshToken.id,
-            refreshToken.tokenHash,
-            refreshToken.userId,
-            new User(
-                refreshToken.user.id,
-                refreshToken.user.phoneNumber,
-                refreshToken.user.role,
-                refreshToken.user.createdAt,
-                refreshToken.user.updatedAt,
-            ),
-            refreshToken.expiresAt,
-            refreshToken.revokedAt,
-            refreshToken.createdAt,
-        );
+ async findByHash(
+    hash: string,
+  ): Promise<RefreshToken | null> {
+    const token = await this.prisma.refreshToken.findUnique({
+      where: {
+        tokenHash: hash,
+      },
+    });
+
+    if (!token) {
+      return null;
     }
 
-    async revoke(id: string): Promise<void> {
-        await this.prisma.refreshToken.update({
-            where: {
-                id,
-            },
-            data: {
-                revokedAt: new Date(),
-            },
-        });
-    }
+    return this.toDomain(token);
+  }
+
+private toDomain(model: {
+   id: string;
+   tokenHash: string;
+   userId: string;
+   expiresAt: Date;
+   revokedAt: Date | null;
+   createdAt: Date;
+ }): RefreshToken {
+   return new RefreshToken(
+      model.id,
+      model.tokenHash,
+      model.userId,
+      null as any, 
+      model.expiresAt,
+      model.revokedAt,
+     model.createdAt,
+  );
+ }
 }

@@ -11,4 +11,16 @@ export class RefreshToken {
     public createdAt: Date
 
   ) {}
+
+  revoke(){
+    this.revokedAt = new Date();
+  }
+
+  isRevoked(){
+    return !!this.revokedAt;
+  }
+
+  isExpired(){
+     return this.expiresAt < new Date();
+  }
 }
