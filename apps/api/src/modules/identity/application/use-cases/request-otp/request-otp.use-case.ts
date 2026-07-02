@@ -5,11 +5,13 @@ import { IOtpRepository } from "src/modules/identity/domain/repositories/otp.rep
 export class RequestOtpUseCase{
     constructor(
         @Inject('IOtpRepository')
-        private readonly otpRepo: IOtpRepository
+        private readonly otpRepo: IOtpRepository,
+        @Inject('IOtpGenerator')
+         private readonly otpGenerator: IOtpGenerator,
     ){}
 
     async execute(phone:string){
-      const code = Math.floor(100000 + Math.random()*900000).toString();    
+      const code = this.otpGenerator.generate()
       const expiresAt = new Date(
         Date.now() + 2 * 60 * 1000
       )
@@ -20,7 +22,5 @@ export class RequestOtpUseCase{
       expiresAt
     });
      
-    console.log(`phone: ${phone} , code: ${code}`)
-
   }
 }

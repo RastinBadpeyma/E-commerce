@@ -9,6 +9,7 @@ import { PrismaRefreshTokenRepositories } from './infrastructure/repositories/pr
 import { JwtTokenService } from './infrastructure/services/jwt.service';
 import { HashService } from './infrastructure/services/hash.service';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token/refresh-token.use-case';
+import { CryptoOtpGenerator } from './infrastructure/services/crypto-otp-generator.service';
 
 
 @Module({
@@ -46,6 +47,10 @@ import { RefreshTokenUseCase } from './application/use-cases/refresh-token/refre
       provide: 'IHashService',
       useClass: HashService,
     },
+    {
+      provide: 'IOtpGenerator',
+      useClass: CryptoOtpGenerator,
+    }
   ],
 
   controllers: [AuthController],

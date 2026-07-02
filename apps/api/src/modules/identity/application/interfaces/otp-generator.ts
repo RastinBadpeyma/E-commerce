@@ -1,0 +1,3 @@
+interface IOtpGenerator {
+    generate(): string;
+}
