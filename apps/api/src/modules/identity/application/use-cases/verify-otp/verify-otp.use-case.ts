@@ -3,7 +3,7 @@ import { IOtpRepository } from "src/modules/identity/domain/repositories/otp.rep
 import { IRefreshTokenRepository } from "src/modules/identity/domain/repositories/refresh-token.repositories";
 import { IUserRepository } from "src/modules/identity/domain/repositories/user.repository";
 import { TokenService } from "../../interfaces/token-service";
-import { HashService } from "src/modules/identity/infrastructure/services/hash.service";
+import { IHashService } from "../../interfaces/hash-service";
 
 @Injectable()
 export class VerifyOtpUseCase{
@@ -21,7 +21,7 @@ export class VerifyOtpUseCase{
     private readonly tokenService:TokenService,
 
     @Inject('IHashService')
-    private readonly hashService:HashService
+    private readonly hashService:IHashService
     ){}
     
     async execute(phone:string,code:string){

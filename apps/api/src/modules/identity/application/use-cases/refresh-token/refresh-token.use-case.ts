@@ -1,8 +1,8 @@
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 
-import { HashService } from "src/modules/identity/infrastructure/services/hash.service";
 import { TokenService } from "../../interfaces/token-service";
 import { IRefreshTokenRepository } from "src/modules/identity/domain/repositories/refresh-token.repositories";
+import { IHashService } from "../../interfaces/hash-service";
 
 
 @Injectable()
@@ -17,7 +17,7 @@ export class RefreshTokenUseCase {
     private readonly tokenService: TokenService,
 
     @Inject("IHashService")
-    private readonly hashService: HashService,
+    private readonly hashService: IHashService,
 
   ) {}
 
