@@ -1,3 +1,3 @@
-interface IOtpGenerator {
+export interface IOtpGenerator {
     generate(): string;
 }
