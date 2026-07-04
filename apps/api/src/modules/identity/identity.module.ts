@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './presentation/auth.controller';
 import { RequestOtpUseCase } from './application/use-cases/request-otp/request-otp.use-case';
-import { PrismaOtpRepositories } from './infrastructure/repositories/prisma-request-otp.repositories';
+import { PrismaOtpRepositories } from './infrastructure/repositories/prisma-otp.repositories';
 import { VerifyOtpUseCase } from './application/use-cases/verify-otp/verify-otp.use-case';
 import { PrismaUserRepositories } from './infrastructure/repositories/prisma-user.repositories';
 import { PrismaRefreshTokenRepositories } from './infrastructure/repositories/prisma-refresh-token.repositories';
@@ -10,6 +10,7 @@ import { JwtTokenService } from './infrastructure/services/jwt.service';
 import { HashService } from './infrastructure/services/hash.service';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token/refresh-token.use-case';
 import { CryptoOtpGenerator } from './infrastructure/services/crypto-otp-generator.service';
+import { DefaultOtpPolicy } from './infrastructure/policies/default-otp-policy';
 
 
 @Module({
@@ -50,7 +51,11 @@ import { CryptoOtpGenerator } from './infrastructure/services/crypto-otp-generat
     {
       provide: 'IOtpGenerator',
       useClass: CryptoOtpGenerator,
-    }
+    },
+    {
+      provide: "IOtpPolicy",
+      useClass: DefaultOtpPolicy,
+}
   ],
 
   controllers: [AuthController],

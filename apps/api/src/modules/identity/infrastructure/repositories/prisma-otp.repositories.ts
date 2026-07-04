@@ -35,11 +35,7 @@ export class PrismaOtpRepositories implements IOtpRepository {
         },
       });
 
-    if (!otp) {
-      return null;
-    }
-
-        return otp ? this.toDomain(otp) : null;
+      return otp ? this.toDomain(otp) : null;
   }
 
 
