@@ -11,6 +11,7 @@ import { HashService } from './infrastructure/services/hash.service';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token/refresh-token.use-case';
 import { CryptoOtpGenerator } from './infrastructure/services/crypto-otp-generator.service';
 import { DefaultOtpPolicy } from './infrastructure/policies/default-otp-policy';
+import { DefaultTokenPolicy } from './infrastructure/policies/default-token-policy';
 
 
 @Module({
@@ -55,7 +56,11 @@ import { DefaultOtpPolicy } from './infrastructure/policies/default-otp-policy';
     {
       provide: "IOtpPolicy",
       useClass: DefaultOtpPolicy,
-}
+    },
+    {
+      provide: "ITokenPolicy",
+      useClass: DefaultTokenPolicy,
+    },
   ],
 
   controllers: [AuthController],

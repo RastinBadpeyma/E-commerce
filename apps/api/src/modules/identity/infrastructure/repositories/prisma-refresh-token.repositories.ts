@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/infrastructure/database/prisma.service";
 import { RefreshToken } from "../../domain/entities/refresh-token";
-import { User } from "../../domain/entities/user";
 import { IRefreshTokenRepository } from "../../domain/repositories/refresh-token.repositories";
 
 @Injectable()
@@ -64,10 +63,9 @@ private toDomain(model: {
       model.id,
       model.tokenHash,
       model.userId,
-      null as any, 
       model.expiresAt,
       model.revokedAt,
-     model.createdAt,
+      model.createdAt,
   );
  }
 }
