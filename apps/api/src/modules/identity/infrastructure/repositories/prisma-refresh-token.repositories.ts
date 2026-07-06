@@ -23,13 +23,13 @@ export class PrismaRefreshTokenRepositories implements IRefreshTokenRepository {
         });
     }
 
-  async save(refreshToken: RefreshToken): Promise<void> {
+  async revoke(id: string, revokedAt: Date): Promise<void> {
     await this.prisma.refreshToken.update({
       where: {
-        id: refreshToken.id,
+        id: id,
       },
       data: {
-        revokedAt: refreshToken.revokedAt,
+        revokedAt: revokedAt,
       },
     });
   }

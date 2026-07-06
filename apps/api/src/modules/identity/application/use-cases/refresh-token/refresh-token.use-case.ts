@@ -1,8 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-
-import { TokenService } from "../../interfaces/token-service";
 import { IRefreshTokenRepository } from "src/modules/identity/domain/repositories/refresh-token.repositories";
 import { IHashService } from "../../interfaces/hash-service";
+import { SessionService } from "../../interfaces/session-service";
 
 
 @Injectable()
@@ -13,12 +12,12 @@ export class RefreshTokenUseCase {
     @Inject("IRefreshTokenRepository")
     private readonly refreshTokenRepository: IRefreshTokenRepository,
 
-    @Inject("TokenService")
-    private readonly tokenService: TokenService,
-
     @Inject("IHashService")
     private readonly hashService: IHashService,
 
+    @Inject('SessionService') 
+    private readonly sessionService: SessionService,
+    
   ) {}
 
   async execute(
@@ -45,28 +44,9 @@ export class RefreshTokenUseCase {
 
     session.revoke();
 
-    await this.refreshTokenRepository.save(session);
+    await this.refreshTokenRepository.revoke(session.id, session.revokedAt);
 
-    const accessToken =
-      await this.tokenService.generateAccessToken(session.userId);
-
-    const newRefreshToken =
-      await this.tokenService.generateRefreshToken();
-
-    const newHash =
-      await this.hashService.hash(newRefreshToken);
-
-    await this.refreshTokenRepository.create({
-      tokenHash: newHash,
-      userId: session.userId,
-      expiresAt: new Date(
-        Date.now() + 30 * 24 * 60 * 60 * 1000,
-      ),
-    });
-
-    return {
-      accessToken,
-      refreshToken: newRefreshToken,
-    };
+   const token = this.sessionService.create(session.userId);
+   return token;
   }
 }

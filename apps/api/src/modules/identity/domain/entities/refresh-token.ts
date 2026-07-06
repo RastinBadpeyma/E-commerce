@@ -1,5 +1,3 @@
-import { User } from "./user";
-
 export class RefreshToken {
   constructor(
     public readonly id: string,
@@ -12,6 +10,7 @@ export class RefreshToken {
   ) {}
 
   revoke(){
+    if (this.revokedAt) return;
     this.revokedAt = new Date();
   }
 
