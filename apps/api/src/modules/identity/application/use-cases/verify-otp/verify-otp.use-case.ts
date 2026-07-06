@@ -3,7 +3,7 @@ import { IOtpRepository } from "src/modules/identity/domain/repositories/otp.rep
 import { IRefreshTokenRepository } from "src/modules/identity/domain/repositories/refresh-token.repositories";
 import { IUserRepository } from "src/modules/identity/domain/repositories/user.repository";
 
-import { SessionService } from "../../interfaces/session-service";
+import { ISessionService } from "../../interfaces/session-service";
 
 @Injectable()
 export class VerifyOtpUseCase{
@@ -14,7 +14,7 @@ export class VerifyOtpUseCase{
     @Inject('IOtpRepository')
     private readonly otpRepository:IOtpRepository,
 
-    @Inject('SessionService') private readonly sessionService: SessionService,
+    @Inject('ISessionService') private readonly sessionService: ISessionService,
 
     ){}
     

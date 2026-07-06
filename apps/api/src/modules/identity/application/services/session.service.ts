@@ -1,14 +1,14 @@
 import { Injectable, Inject } from "@nestjs/common";
 import { IRefreshTokenRepository } from "../../domain/repositories/refresh-token.repositories";
 import { IHashService } from "../interfaces/hash-service";
-import { SessionService } from "../interfaces/session-service";
+import { ISessionService } from "../interfaces/session-service";
 import { ITokenPolicy } from "../interfaces/token-policy";
-import { TokenService } from "../interfaces/token-service";
+import { ITokenService } from "../interfaces/token-service";
 
 @Injectable()
-export class DefaultSessionService implements SessionService {
+export class DefaultSessionService implements ISessionService {
   constructor(
-    @Inject('TokenService') private readonly tokenService: TokenService,
+    @Inject('ITokenService') private readonly tokenService: ITokenService,
     @Inject('IHashService') private readonly hashService: IHashService,
     @Inject('IRefreshTokenRepository') private readonly refreshTokenRepository: IRefreshTokenRepository,
     @Inject('ITokenPolicy') private readonly tokenPolicy: ITokenPolicy, 

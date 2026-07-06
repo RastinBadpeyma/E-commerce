@@ -12,6 +12,7 @@ import { RefreshTokenUseCase } from './application/use-cases/refresh-token/refre
 import { CryptoOtpGenerator } from './infrastructure/services/crypto-otp-generator.service';
 import { DefaultOtpPolicy } from './infrastructure/policies/default-otp-policy';
 import { DefaultTokenPolicy } from './infrastructure/policies/default-token-policy';
+import { DefaultSessionService } from './application/services/session.service';
 
 
 @Module({
@@ -42,7 +43,7 @@ import { DefaultTokenPolicy } from './infrastructure/policies/default-token-poli
       useClass: PrismaRefreshTokenRepositories,
     },
     {
-      provide: 'TokenService',
+      provide: 'ITokenService',
       useClass: JwtTokenService,
     },
     {
@@ -61,6 +62,11 @@ import { DefaultTokenPolicy } from './infrastructure/policies/default-token-poli
       provide: "ITokenPolicy",
       useClass: DefaultTokenPolicy,
     },
+    {
+      provide:'ISessionService',
+      useClass: DefaultSessionService
+    }
+
   ],
 
   controllers: [AuthController],
