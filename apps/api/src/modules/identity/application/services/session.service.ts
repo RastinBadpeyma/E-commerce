@@ -19,12 +19,15 @@ export class DefaultSessionService implements ISessionService {
     const refreshToken = await this.tokenService.generateRefreshToken();
     const tokenHash = await this.hashService.hash(refreshToken);
 
-    await this.refreshTokenRepository.create({
-      userId,
-      tokenHash,
-      expiresAt: new Date(Date.now() + this.tokenPolicy.getRefreshTokenTtlMs()),
-    });
 
-    return { accessToken, refreshToken };
+    return { 
+      accessToken, 
+      refreshToken,
+      tokenHash,
+      expiresAt: 
+       new Date(
+        Date.now() + this.tokenPolicy.getRefreshTokenTtlMs()
+       )
+    };
   }
 }

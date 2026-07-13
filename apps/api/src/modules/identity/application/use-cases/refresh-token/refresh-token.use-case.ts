@@ -3,50 +3,41 @@ import { IRefreshTokenRepository } from "src/modules/identity/domain/repositorie
 import { IHashService } from "../../interfaces/hash-service";
 import { ISessionService } from "../../interfaces/session-service";
 
-
 @Injectable()
 export class RefreshTokenUseCase {
-
   constructor(
-
     @Inject("IRefreshTokenRepository")
     private readonly refreshTokenRepository: IRefreshTokenRepository,
 
     @Inject("IHashService")
     private readonly hashService: IHashService,
 
-    @Inject('ISessionService') 
+    @Inject("ISessionService")
     private readonly sessionService: ISessionService,
-    
   ) {}
 
-  async execute(
-    refreshToken: string,
-  ) {
+  async execute(refreshToken: string) {
+    const oldHash = await this.hashService.hash(refreshToken);
 
-    const tokenHash =
-      await this.hashService.hash(refreshToken);
+    const existing = await this.refreshTokenRepository.findByHash(oldHash);
+    if (!existing || existing.isExpired() || existing.isRevoked()) {
+      throw new UnauthorizedException();
+    }
+    const session = await this.sessionService.create(existing.userId);
 
-    const session =
-      await this.refreshTokenRepository.findByHash(tokenHash);
-
-    if (!session) {
+    try {
+      await this.refreshTokenRepository.rotate(oldHash, {
+        userId: existing.userId,
+        tokenHash: session.tokenHash,
+        expiresAt: session.expiresAt,
+      });
+    } catch {
       throw new UnauthorizedException();
     }
 
-    if (session.isExpired()) {
-      throw new UnauthorizedException();
-    }
-
-    if (session.isRevoked()) {
-      throw new UnauthorizedException();
-    }
-
-    session.revoke();
-
-    await this.refreshTokenRepository.revoke(session.id, session.revokedAt);
-
-   const token = this.sessionService.create(session.userId);
-   return token;
+    return {
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+    };
   }
 }

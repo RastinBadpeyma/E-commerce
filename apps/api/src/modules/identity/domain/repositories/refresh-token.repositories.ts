@@ -7,11 +7,11 @@ export interface IRefreshTokenRepository {
     expiresAt: Date;
   }): Promise<void>;
 
-  revoke(
-     id:string,
-     revokedAt: Date | null,
-  ):Promise<void>;
-
   findByHash(hash: string): Promise<RefreshToken | null>;
+
+  rotate(
+    oldTokenHash: string,
+    newToken: { userId: string; tokenHash: string; expiresAt: Date },
+  ): Promise<void>;
 
 }

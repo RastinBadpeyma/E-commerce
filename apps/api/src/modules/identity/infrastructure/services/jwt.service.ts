@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { randomUUID } from "crypto";
-import { TokenService } from "../../application/interfaces/token-service";
+import { ITokenService } from "../../application/interfaces/token-service";
 
 @Injectable()
 export class JwtTokenService
-  implements TokenService
+  implements ITokenService
 {
   constructor(
     private readonly jwt: JwtService,
