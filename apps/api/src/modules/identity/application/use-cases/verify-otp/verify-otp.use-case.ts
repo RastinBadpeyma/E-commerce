@@ -1,9 +1,10 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { IOtpRepository } from "src/modules/identity/domain/repositories/otp.repositories";
 import { IRefreshTokenRepository } from "src/modules/identity/domain/repositories/refresh-token.repositories";
 import { IUserRepository } from "src/modules/identity/domain/repositories/user.repository";
 
 import { ISessionService } from "../../interfaces/session-service";
+import { OtpNotFoundError } from "src/modules/identity/domain/errors/otp-not-found.error";
 
 @Injectable()
 export class VerifyOtpUseCase {
@@ -22,7 +23,7 @@ export class VerifyOtpUseCase {
 
   async execute(phone: string, code: string) {
     const otp = await this.otpRepository.findLatestByPhone(phone);
-    if (!otp) throw new NotFoundException();
+    if (!otp) throw new OtpNotFoundError;
 
     otp.verify(code);
 

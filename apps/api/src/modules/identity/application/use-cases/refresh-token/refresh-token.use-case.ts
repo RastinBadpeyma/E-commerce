@@ -1,7 +1,9 @@
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { IRefreshTokenRepository } from "src/modules/identity/domain/repositories/refresh-token.repositories";
 import { IHashService } from "../../interfaces/hash-service";
 import { ISessionService } from "../../interfaces/session-service";
+import { UnauthorizedAccessError } from "src/modules/identity/domain/errors/unauthorized-access.error";
+import { InvalidOtpError } from "src/modules/identity/domain/errors/invalid-otp.error";
 
 @Injectable()
 export class RefreshTokenUseCase {
@@ -20,8 +22,11 @@ export class RefreshTokenUseCase {
     const oldHash = await this.hashService.hash(refreshToken);
 
     const existing = await this.refreshTokenRepository.findByHash(oldHash);
-    if (!existing || existing.isExpired() || existing.isRevoked()) {
-      throw new UnauthorizedException();
+    if (!existing ||  existing.isRevoked()) {
+      throw new InvalidOtpError('invalid');
+    }
+    if (existing.isExpired()) {
+      throw new InvalidOtpError('expired');
     }
     const session = await this.sessionService.create(existing.userId);
 
@@ -32,7 +37,7 @@ export class RefreshTokenUseCase {
         expiresAt: session.expiresAt,
       });
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedAccessError();
     }
 
     return {
