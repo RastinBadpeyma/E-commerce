@@ -15,7 +15,10 @@ export class DefaultSessionService implements ISessionService {
   ) {}
 
   async create(userId: string) {
-    const accessToken = await this.tokenService.generateAccessToken(userId);
+   const payload = {
+    sub: userId
+   }
+    const accessToken = await this.tokenService.generateAccessToken(payload);
     const refreshToken = await this.tokenService.generateRefreshToken();
     const tokenHash = await this.hashService.hash(refreshToken);
 

@@ -1,5 +1,7 @@
+import { AccessTokenPayload } from "../types/access-token-payload";
+
 export interface ITokenService {
-  generateAccessToken(userId: string): Promise<string>;
+  generateAccessToken(payload: AccessTokenPayload): Promise<string>;
 
   generateRefreshToken(): Promise<string>;
 }
