@@ -4,7 +4,7 @@ generator client {
 }
 datasource db {
   provider = "postgresql"
-  schemas  = ["identity"] 
+  schemas  = ["identity", "product"] 
 
 }
 
@@ -59,6 +59,26 @@ model RefreshToken {
   @@index([userId])
   @@schema("identity")
 }
+
+enum ProductsStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+  @@schema("product")
+}
+model Product {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String @unique
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  quantity    Int 
+  status      ProductsStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@schema("product")
+}
+
 
 
 
