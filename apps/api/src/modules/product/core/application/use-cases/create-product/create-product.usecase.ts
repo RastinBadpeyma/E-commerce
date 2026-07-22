@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateProductInput, IProductRepository } from '../../../domain/ports/product-repository.port';
 import { Product } from '../../../domain/entities/product.entity';
+import { InvalidPriceError } from '../../../domain/errors/invalid-price.error';
+import { InvalidQuantityError } from '../../../domain/errors/invalid-quantity.error';
 
 @Injectable()
 export class CreateProductUseCase {
@@ -11,10 +13,11 @@ export class CreateProductUseCase {
 
   execute(command: CreateProductInput): Promise<Product> {
     if (command.price < 0) {
-       console.log('invalid price error')
+      throw new InvalidPriceError(command.price);
     }
-    if(command.quantity < 0) {
-      console.log('invalid quantity error')
+
+    if (command.quantity < 0) {
+      throw new InvalidQuantityError(command.quantity);
     }
 
     return this.productRepository.create(command);
