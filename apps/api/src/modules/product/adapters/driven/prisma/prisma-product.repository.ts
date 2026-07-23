@@ -2,11 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "generated/prisma/client";
 import { PrismaService } from "src/infrastructure/database/prisma.service";
 import { Product } from "src/modules/product/core/domain/entities/product.entity";
-import {
-  CreateProductInput,
-  IProductRepository,
-} from "src/modules/product/core/domain/ports/product-repository.port";
+
 import { SlugAlreadyExistsError } from "src/modules/product/core/domain/errors/slug-already-exists.error";
+import { CreateProductInput } from "src/modules/product/core/ports/in/create-product";
+import { IProductRepository } from "src/modules/product/core/ports/out/product-repository.port";
 
 @Injectable()
 export class PrismaProductRepository implements IProductRepository {

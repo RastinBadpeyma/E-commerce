@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateProductInput, IProductRepository } from '../../../domain/ports/product-repository.port';
 import { Product } from '../../../domain/entities/product.entity';
 import { InvalidPriceError } from '../../../domain/errors/invalid-price.error';
 import { InvalidQuantityError } from '../../../domain/errors/invalid-quantity.error';
+import { IProductRepository } from '../../../ports/out/product-repository.port';
+import { CreateProductInput } from '../../../ports/in/create-product';
 
 @Injectable()
 export class CreateProductUseCase {
