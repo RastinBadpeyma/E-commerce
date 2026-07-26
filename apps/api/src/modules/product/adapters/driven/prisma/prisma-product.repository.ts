@@ -10,6 +10,14 @@ import { IProductRepository } from "src/modules/product/core/ports/out/product-r
 @Injectable()
 export class PrismaProductRepository implements IProductRepository {
   constructor(private readonly prisma: PrismaService) {}
+  async findMany(): Promise<Product[]> {
+    const prismaProducts = await this.prisma.product.findMany({
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+
+    return prismaProducts.map((prismaProduct) => this.toDomain(prismaProduct));
+  }
+  
 
   async create(input: CreateProductInput): Promise<Product> {
     try {
