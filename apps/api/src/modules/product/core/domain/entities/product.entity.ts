@@ -6,13 +6,17 @@ export enum ProductStatus {
 
 export class Product {
   constructor(
-    private readonly _id: string,
-    private _title: string,
-    private _slug: string,
-    private _description: string,
-    private _price: number,
-    private _quantity: number,
-    private _status: ProductStatus,
+    public readonly _id: string,
+    public _title: string,
+    public _slug: string,
+    public _description: string,
+    public _price: number,
+    public _quantity: number,
+    public _status: ProductStatus,
+    public _createdAt: Date = new Date(),
+    public _updatedAt: Date = new Date(),
+
+
   ) {}
 
 }

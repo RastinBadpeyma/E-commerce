@@ -5,19 +5,53 @@ import { Product } from "src/modules/product/core/domain/entities/product.entity
 
 import { SlugAlreadyExistsError } from "src/modules/product/core/domain/errors/slug-already-exists.error";
 import { CreateProductInput } from "src/modules/product/core/ports/in/create-product";
+import {
+  FindProductsInput,
+  PaginatedProducts,
+} from "src/modules/product/core/ports/in/find-products";
 import { IProductRepository } from "src/modules/product/core/ports/out/product-repository.port";
 
 @Injectable()
 export class PrismaProductRepository implements IProductRepository {
   constructor(private readonly prisma: PrismaService) {}
-  async findMany(): Promise<Product[]> {
+  async findMany(input: FindProductsInput = {}): Promise<PaginatedProducts> {
+    const limit = input.limit ?? 20;
+
+    let cursorCondition: Prisma.ProductWhereInput | undefined;
+    if (input.cursor) {
+      const { createdAt, id } = this.decodeCursor(input.cursor);
+      cursorCondition = {
+        OR: [{ createdAt: { gt: createdAt } }, { createdAt, id: { gt: id } }],
+      };
+    }
+
     const prismaProducts = await this.prisma.product.findMany({
+      where: cursorCondition,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: limit + 1, 
     });
 
-    return prismaProducts.map((prismaProduct) => this.toDomain(prismaProduct));
+    const hasMore = prismaProducts.length > limit;
+    const items = prismaProducts.slice(0, limit).map((p) => this.toDomain(p));
+    const nextCursor = hasMore
+      ? this.encodeCursor(items[items.length - 1])
+      : null;
+
+    return { items, nextCursor, hasMore };
   }
-  
+
+  private encodeCursor(product: Product): string {
+    return Buffer.from(
+      JSON.stringify({
+        createdAt: product._createdAt, 
+        id: product._id,
+      }),
+    ).toString("base64");
+  }
+
+  private decodeCursor(cursor: string): { createdAt: Date; id: string } {
+    return JSON.parse(Buffer.from(cursor, "base64").toString());
+  }
 
   async create(input: CreateProductInput): Promise<Product> {
     try {
@@ -52,6 +86,8 @@ export class PrismaProductRepository implements IProductRepository {
       Number(product.price),
       product.quantity,
       product.status,
+      product.createdAt,
+      product.updatedAt
     );
   }
 }
