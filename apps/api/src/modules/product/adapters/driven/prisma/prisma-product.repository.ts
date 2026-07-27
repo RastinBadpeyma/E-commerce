@@ -14,6 +14,19 @@ import { IProductRepository } from "src/modules/product/core/ports/out/product-r
 @Injectable()
 export class PrismaProductRepository implements IProductRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async findBySlug(slug: string): Promise<Product> {
+    const product = await this.prisma.product.findUnique({
+      where: { slug },
+    });
+
+    if (!product) {
+      throw new Error(`Product not found for slug: ${slug}`);
+    }
+
+    return this.toDomain(product);
+  }
+
   async findMany(input: FindProductsInput = {}): Promise<PaginatedProducts> {
     const limit = input.limit ?? 20;
 
@@ -26,6 +39,7 @@ export class PrismaProductRepository implements IProductRepository {
     }
 
     const prismaProducts = await this.prisma.product.findMany({
+      //TODO: just show active and out of stock(without price and quantity)
       where: cursorCondition,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: limit + 1, 
@@ -43,7 +57,7 @@ export class PrismaProductRepository implements IProductRepository {
   private encodeCursor(product: Product): string {
     return Buffer.from(
       JSON.stringify({
-        createdAt: product._createdAt, 
+        createdAt: product.createdAt, 
         id: product._id,
       }),
     ).toString("base64");
