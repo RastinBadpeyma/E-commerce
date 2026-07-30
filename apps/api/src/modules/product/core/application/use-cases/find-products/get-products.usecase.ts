@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ProductStatus } from "../../../domain/entities/product.entity";
-import { IProductRepository } from "../../../ports/out/product-repository.port";
-import { FindProductsInput, FindProductsOutputItem, PaginatedProducts } from "../../../ports/in/find-products";
+import { IProductRepository } from "../../../ports/outbound/product-repository.port";
+import { FindProductsInput, FindProductsOutputItem, PaginatedProducts } from "../../../ports/inbound/find-products";
 
 @Injectable()
 export class GetProductsUseCase {

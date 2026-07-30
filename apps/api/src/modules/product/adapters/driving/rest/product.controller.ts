@@ -3,7 +3,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { CreateProductUseCase } from 'src/modules/product/core/application/use-cases/create-product/create-product.usecase';
 import { GetProductsUseCase } from 'src/modules/product/core/application/use-cases/find-products/get-products.usecase';
 import { GetProductBySlugUseCase } from 'src/modules/product/core/application/use-cases/get-product-by-slug/get-product-by-slug.usecase';
-import { FindProductsInput, GetProductBySlugOutput, PaginatedProducts } from 'src/modules/product/core/ports/in/find-products';
+import { FindProductsInput, GetProductBySlugOutput, PaginatedProducts } from 'src/modules/product/core/ports/inbound/find-products';
 
 @Controller('products')
 export class ProductController {

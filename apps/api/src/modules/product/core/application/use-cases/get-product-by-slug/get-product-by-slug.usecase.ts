@@ -1,10 +1,10 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { IProductRepository } from "../../../ports/out/product-repository.port";
+import { IProductRepository } from "../../../ports/outbound/product-repository.port";
 import {
   ProductStatus,
 } from "../../../domain/entities/product.entity";
 import { ProductNotFoundError } from "../../../domain/errors/product-not-found.error";
-import { GetProductBySlugOutput } from "../../../ports/in/find-products";
+import { GetProductBySlugOutput } from "../../../ports/inbound/find-products";
 
 @Injectable()
 export class GetProductBySlugUseCase {

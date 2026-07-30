@@ -4,12 +4,12 @@ import { PrismaService } from "src/infrastructure/database/prisma.service";
 import { Product } from "src/modules/product/core/domain/entities/product.entity";
 
 import { SlugAlreadyExistsError } from "src/modules/product/core/domain/errors/slug-already-exists.error";
-import { CreateProductInput } from "src/modules/product/core/ports/in/create-product";
+import { CreateProductInput } from "src/modules/product/core/ports/inbound/create-product";
 import {
   FindProductsInput,
   PaginatedProducts,
-} from "src/modules/product/core/ports/in/find-products";
-import { IProductRepository } from "src/modules/product/core/ports/out/product-repository.port";
+} from "src/modules/product/core/ports/inbound/find-products";
+import { IProductRepository } from "src/modules/product/core/ports/outbound/product-repository.port";
 
 @Injectable()
 export class PrismaProductRepository implements IProductRepository {
