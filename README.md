@@ -1,159 +1,241 @@
-# Turborepo starter
 
-This Turborepo starter is maintained by the Turborepo core team.
+## Project Structure
 
-## Using this example
-
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```
+e-commerce/
+├── apps/
+│   └── api/                     
+│       ├── prisma/             
+│       │   ├── schema.prisma
+│       │   └── migrations/
+│       └── src/
+│           ├── main.ts
+│           ├── app.module.ts
+│           ├── infrastructure/   # Shared infrastructure (Prisma)
+│           └── modules/
+│               
+│               
+├── packages/
+│   ├── config/                   # Shared TypeScript configuration
+│   └── eslint-config/            # Shared ESLint configuration
+├── turbo.json                    # Turborepo pipeline configuration
+└── pnpm-workspace.yaml           # pnpm workspace definition
 ```
 
-## What's inside?
+## Getting Started
 
-This Turborepo includes the following packages/apps:
 
-### Apps and Packages
+### Installation
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+1. Clone the repository:
 
 ```sh
-cd my-turborepo
-turbo build
+git clone <repository-url>
+cd E-commerce
 ```
 
-Without global `turbo`, use your package manager:
+2. Install dependencies:
 
 ```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+pnpm install
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+3. Set up environment variables. Create a `.env` file in `apps/api/`:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/<Your_Database_Name>"
+```
+
+4. Run database migrations:
 
 ```sh
-turbo build --filter=docs
+cd apps/api
+pnpm prisma migrate dev
 ```
 
-Without global `turbo`:
+5. Start the development server:
 
 ```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+pnpm dev
 ```
 
-### Develop
+The API will be available at `http://localhost:3000`.
 
-To develop all apps and packages, run the following command:
+## Development Commands
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+| Command | Description |
+|---------|-------------|
+| `pnpm dev` | Run all apps in development mode |
+| `pnpm build` | Build all apps and packages |
+| `pnpm lint` | Lint all packages |
+| `pnpm check-types` | Type-check all packages |
+| `pnpm format` | Format code with Prettier |
+
+You can also run commands for specific packages using Turborepo filters:
 
 ```sh
-cd my-turborepo
-turbo dev
+pnpm turbo dev --filter=@ecommerce/api
+pnpm turbo build --filter=@ecommerce/api
 ```
 
-Without global `turbo`, use your package manager:
+## Architecture
+
+This project follows Clean Architecture principles with clear separation of concerns between domain logic, application use cases, and infrastructure.
+
+### Hexagonal Architecture (Product Module)
+
+The Product module implements Hexagonal Architecture (Ports & Adapters pattern):
+
+```
+core/
+├── domain/
+│   ├── entities/          # Business entities
+│   └── errors/            # Domain-specific errors
+├── ports/
+│   ├── inbound/           # Use case interfaces (driving)
+│   └── outbound/          # Repository interfaces (driven)
+└── application/
+    └── use-cases/         # Business logic implementations
+
+adapters/
+├── driving/
+│   └── rest/              # REST controllers (inbound adapters)
+└── driven/
+    └── prisma/            # Prisma repositories (outbound adapters)
+```
+
+- **Ports** define interfaces for what the domain needs (inbound) and what it provides (outbound)
+- **Adapters** implement these interfaces for specific technologies (REST, Prisma)
+- **Domain entities** contain pure business logic with no framework dependencies
+
+### Clean Architecture (Identity Module)
+
+The Identity module follows a layered architecture:
+
+```
+domain/
+├── entities/              # User, Otp, RefreshToken
+├── repositories/          # Repository interfaces
+└── errors/                # Domain errors
+
+application/
+├── interfaces/            # Service contracts
+├── use-cases/             # Business operations
+└── services/              # Application services
+
+infrastructure/
+├── repositories/          # Prisma implementations
+├── services/              # JWT, Hash, OTP services
+└── policies/              # OTP and Token policies
+
+presentation/
+└── auth.controller.ts     # REST endpoints
+```
+
+### Dependency Rule
+
+Domain and business logic remain independent from frameworks and infrastructure:
+
+- Domain layers do not import NestJS decorators, Prisma models, or Express objects
+- Dependencies point toward the domain, not away from it
+- Infrastructure implements interfaces defined by the domain
+
+## Modules
+
+### Identity Module
+
+Handles authentication using OTP-based login with JWT tokens.
+
+**Endpoints:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/auth/request-otp` | Request an OTP code for a phone number |
+| POST | `/auth/verify-otp` | Verify OTP and receive tokens |
+| POST | `/auth/refresh-token` | Refresh an expired access token |
+
+**Domain Entities:**
+
+- `User` - User accounts with phone number and role (ADMIN, CUSTOMER)
+- `OtpCode` - One-time password codes with expiration
+- `RefreshToken` - Token management with revocation support
+
+**Infrastructure Services:**
+
+- JWT token generation and validation
+- Password hashing
+- OTP generation and verification
+- Token policies for OTP and refresh token configuration
+
+### Product Module
+
+Manages product catalog with CRUD operations.
+
+**Endpoints:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/products` | Create a new product |
+| GET | `/products` | List products with cursor-based pagination |
+| GET | `/products/:slug` | Get a product by its slug |
+
+**Domain Entity:**
+
+- `Product` - Product with title, slug, description, price, quantity, and status (ACTIVE, INACTIVE, OUT_OF_STOCK)
+
+**Business Rules:**
+
+- Product slug must be unique
+- Price must be a positive decimal
+- Quantity must be a non-negative integer
+
+## Database
+
+The project uses PostgreSQL with Prisma ORM. The database schema is organized into two schemas:
+
+- `identity` - User accounts, OTP codes, and refresh tokens
+- `product` - Product catalog
+
+### Prisma Commands
 
 ```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
+# Navigate to the API directory
+cd apps/api
+
+# Generate Prisma client
+pnpm prisma generate
+
+# Run migrations
+pnpm prisma migrate dev
+
+# Open Prisma Studio (database GUI)
+pnpm prisma studio
+
+# Reset database
+pnpm prisma migrate reset
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### Schema Overview
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+```prisma
+// Identity schema
+model User { ... }
+model OtpCode { ... }
+model RefreshToken { ... }
 
-```sh
-turbo dev --filter=web
+// Product schema
+model Product { ... }
 ```
 
-Without global `turbo`:
+The full schema is defined in `apps/api/prisma/schema.prisma`.
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+## Packages
 
-### Remote Caching
+### @ecommerce/config
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Shared TypeScript configuration used across all packages and apps.
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+### eslint-config
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+Shared ESLint configuration with consistent linting rules.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
