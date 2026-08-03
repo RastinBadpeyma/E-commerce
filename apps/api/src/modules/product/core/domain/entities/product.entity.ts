@@ -16,5 +16,5 @@ export class Product {
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
   ) {}
-
+      
 }

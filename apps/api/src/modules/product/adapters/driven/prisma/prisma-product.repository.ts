@@ -4,11 +4,9 @@ import { PrismaService } from "src/infrastructure/database/prisma.service";
 import { Product } from "src/modules/product/core/domain/entities/product.entity";
 
 import { SlugAlreadyExistsError } from "src/modules/product/core/domain/errors/slug-already-exists.error";
-import { CreateProductInput } from "src/modules/product/core/ports/inbound/create-product";
-import {
-  FindProductsInput,
-  PaginatedProducts,
-} from "src/modules/product/core/ports/inbound/find-products";
+import { PaginatedProducts } from "src/modules/product/core/ports/outbound/find-product.input";
+import { CreateProduct } from "src/modules/product/core/ports/outbound/create-product.input";
+import { FindProducts } from "src/modules/product/core/ports/outbound/find-product.input";
 import { IProductRepository } from "src/modules/product/core/ports/outbound/product-repository.port";
 
 @Injectable()
@@ -23,7 +21,7 @@ export class PrismaProductRepository implements IProductRepository {
    return product ? this.toDomain(product) : null;
   }
 
-  async findMany(input: FindProductsInput = {}): Promise<PaginatedProducts> {
+  async findMany(input: FindProducts = {}): Promise<PaginatedProducts> {
     const limit = input.limit ?? 20;
 
     let cursorCondition: Prisma.ProductWhereInput | undefined;
@@ -62,9 +60,17 @@ export class PrismaProductRepository implements IProductRepository {
     return JSON.parse(Buffer.from(cursor, "base64").toString());
   }
 
-  async create(input: CreateProductInput): Promise<Product> {
+  async save(input: CreateProduct): Promise<Product> {
     try {
-      const product = await this.prisma.product.create({ data: input });
+      const product = await this.prisma.product.create({
+        data: {
+           title: input.title,
+           slug: input.slug,
+           description: input.description,
+           price: input.price,
+           quantity: input.quantity,
+        }
+      });
       return this.toDomain(product);
     } catch (error: any) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

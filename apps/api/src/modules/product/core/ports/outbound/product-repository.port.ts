@@ -1,9 +1,9 @@
 import { Product } from "../../domain/entities/product.entity";
-import { CreateProductInput } from "../inbound/create-product";
-import { FindProductsInput, PaginatedProducts } from "../inbound/find-products";
+import { CreateProduct } from "./create-product.input";
+import { FindProducts, PaginatedProducts } from "./find-product.input";
 
 export interface IProductRepository {
-  create(command: CreateProductInput): Promise<Product>;
-  findMany(input?: FindProductsInput): Promise<PaginatedProducts>;
+  save(command: CreateProduct): Promise<Product>;
+  findMany(input?: FindProducts): Promise<PaginatedProducts>;
   findBySlug(slug: string): Promise<Product | null>;
 }

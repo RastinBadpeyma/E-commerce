@@ -4,6 +4,7 @@ import { InvalidPriceError } from '../../../domain/errors/invalid-price.error';
 import { InvalidQuantityError } from '../../../domain/errors/invalid-quantity.error';
 import { IProductRepository } from '../../../ports/outbound/product-repository.port';
 import { CreateProductInput } from '../../../ports/inbound/create-product';
+import { CreateProduct } from '../../../ports/outbound/create-product.input';
 
 @Injectable()
 export class CreateProductUseCase {
@@ -12,15 +13,24 @@ export class CreateProductUseCase {
     private readonly productRepository: IProductRepository,
   ) {}
 
-  execute(command: CreateProductInput): Promise<Product> {
-    if (command.price < 0) {
-      throw new InvalidPriceError(command.price);
+  execute(input: CreateProductInput): Promise<Product> {
+    if (input.price < 0) {
+      throw new InvalidPriceError(input.price);
     }
 
-    if (command.quantity < 0) {
-      throw new InvalidQuantityError(command.quantity);
+    if (input.quantity < 0) {
+      throw new InvalidQuantityError(input.quantity);
     }
 
-    return this.productRepository.create(command);
+    const result : CreateProduct={
+      title: input.title,
+      slug: input.slug,
+      description: input.description,
+      price: input.price,
+      quantity: input.quantity,
+    }
+
+
+    return this.productRepository.save(result);
   }
 }
