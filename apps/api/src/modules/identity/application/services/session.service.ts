@@ -1,4 +1,5 @@
 import { Injectable, Inject } from "@nestjs/common";
+import { AuthUserRole, createAuthPayload } from "@ecommerce/auth-contracts";
 import { IRefreshTokenRepository } from "../../domain/repositories/refresh-token.repositories";
 import { IHashService } from "../interfaces/hash-service";
 import { ISessionService } from "../interfaces/session-service";
@@ -14,10 +15,8 @@ export class DefaultSessionService implements ISessionService {
     @Inject('ITokenPolicy') private readonly tokenPolicy: ITokenPolicy, 
   ) {}
 
-  async create(userId: string) {
-   const payload = {
-    sub: userId
-   }
+  async create(userId: string, role?: AuthUserRole) {
+    const payload = createAuthPayload(userId, role ?? AuthUserRole.CUSTOMER);
     const accessToken = await this.tokenService.generateAccessToken(payload);
     const refreshToken = await this.tokenService.generateRefreshToken();
     const tokenHash = await this.hashService.hash(refreshToken);

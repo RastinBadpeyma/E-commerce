@@ -30,7 +30,7 @@ export class VerifyOtpUseCase {
     let user = await this.userRepository.findByPhone(phone);
     if (!user) user = await this.userRepository.create(phone);
 
-    const session = await this.sessionService.create(user.id);
+    const session = await this.sessionService.create(user.id, user.role);
 
     await this.refreshTokenRepository.create({
       userId: user.id,

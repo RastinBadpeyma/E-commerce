@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { randomUUID } from "crypto";
+import { AuthPayload } from "@ecommerce/auth-contracts";
 import { ITokenService } from "../../application/interfaces/token-service";
-import { AccessTokenPayload } from "../../application/types/access-token-payload";
 
 @Injectable()
 export class JwtTokenService
@@ -13,7 +13,7 @@ export class JwtTokenService
   ) {}
 
   async generateAccessToken(
-    payload: AccessTokenPayload,
+    payload: AuthPayload,
   ): Promise<string> {
 
     return this.jwt.sign(

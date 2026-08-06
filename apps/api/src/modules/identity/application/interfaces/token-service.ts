@@ -1,7 +1,6 @@
-import { AccessTokenPayload } from "../types/access-token-payload";
+import { AuthPayload } from '@ecommerce/auth-contracts';
 
 export interface ITokenService {
-  generateAccessToken(payload: AccessTokenPayload): Promise<string>;
-
+  generateAccessToken(payload: AuthPayload): Promise<string>;
   generateRefreshToken(): Promise<string>;
 }

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/infrastructure/database/prisma.service";
-import { User } from "../../domain/entities/user";
+import { User, UserRole } from "../../domain/entities/user";
 import { IUserRepository } from "../../domain/repositories/user.repository";
 
 @Injectable()
@@ -32,14 +32,14 @@ export class PrismaUserRepositories implements IUserRepository {
     private toDomain(user: {
         id: string;
         phoneNumber: string;
-        role: string;
+        role: UserRole;
         createdAt: Date;
         updatedAt: Date;
     }): User {
         return new User(
             user.id,
             user.phoneNumber,
-            user.role,
+            user.role as UserRole,
             user.createdAt,
             user.updatedAt,
         );
