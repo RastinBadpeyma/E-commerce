@@ -3,7 +3,7 @@ import {
   ProductPublic,
   PRODUCT_PUBLIC,
 } from '../../../../product/core/ports/inbound/product-public';
-import { ProductQueryPort } from 'src/modules/order/core/application/outbound/product-query';
+import { ProductQueryPort } from 'src/modules/order/core/application/ports/outbound/product-query';
 import { ProductReference } from 'src/modules/order/core/domain/value-object/product-snapshot';
 
 @Injectable()
@@ -13,15 +13,18 @@ export class ProductInternalAdapter implements ProductQueryPort {
     private readonly productPublic: ProductPublic,
   ) {}
 
-  async findProduct(productId: string): Promise<ProductReference | null> {
-    const snapshot = await this.productPublic.findProductId(productId);
-    if (!snapshot) return null;
+  async getProductsByIds(productIds: string[]): Promise<ProductReference[] | null> {
+    if (productIds.length === 0) return [];
 
-    return {
+    const snapshots = await this.productPublic.findByIds(productIds);
+
+    if (!snapshots || snapshots.length === 0) return null;
+
+    return snapshots.map((snapshot) => ({
       productId: snapshot.productId,
       productName: snapshot.ProductName,
       unitPrice: snapshot.Unitprice,
-      status: snapshot.status,
-    };
+      status: String(snapshot.status),
+    }));
   }
 }
