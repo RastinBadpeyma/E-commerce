@@ -16,8 +16,8 @@ export class CreateProductDto {
   @IsPositive()
   price!: number;
 
-  @IsNumber()
-  @IsPositive()
-  quantity!: number;
+  // @IsNumber()
+  // @IsPositive()
+  // quantity!: number;
 
 }

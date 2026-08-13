@@ -1,24 +1,41 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "generated/prisma/client";
 import { PrismaService } from "src/infrastructure/database/prisma.service";
-import { Product } from "src/modules/product/core/domain/entities/product.entity";
+import { Product, ProductStatus } from "src/modules/product/core/domain/entities/product.entity";
 
 import { SlugAlreadyExistsError } from "src/modules/product/core/domain/errors/slug-already-exists.error";
 import { PaginatedProducts } from "src/modules/product/core/ports/outbound/find-product.input";
 import { CreateProduct } from "src/modules/product/core/ports/outbound/create-product.input";
 import { FindProducts } from "src/modules/product/core/ports/outbound/find-product.input";
-import { IProductRepository } from "src/modules/product/core/ports/outbound/product-repository.port";
+import { IProductRepository, ProductSnapshot } from "src/modules/product/core/ports/outbound/product-repository.port";
 
 @Injectable()
 export class PrismaProductRepository implements IProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findById(id: string): Promise<Product | null> {
-    const product = await this.prisma.product.findUnique({
-      where: { id },
+  async findByIds(ids: string[]): Promise<ProductSnapshot[]> {
+    const products = await this.prisma.product.findMany({
+      where: {
+        id:{
+          in: ids
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        status: true,
+      }
     });
 
-    return product ? this.toDomain(product) : null;
+      return products.map((product) => ({
+        productId: product.id,
+        ProductName: product.title,
+        Unitprice: Number(product.price),
+        status: product.status as unknown as ProductStatus,
+      }));
+
+
   }
 
   async findBySlug(slug: string): Promise<Product | null> {
@@ -76,7 +93,6 @@ export class PrismaProductRepository implements IProductRepository {
            slug: input.slug,
            description: input.description,
            price: input.price,
-           quantity: input.quantity,
         }
       });
       return this.toDomain(product);
@@ -96,7 +112,6 @@ export class PrismaProductRepository implements IProductRepository {
     slug: string;
     description: string | null;
     price: Prisma.Decimal;
-    quantity: number;
     status: any;
     createdAt: Date;
     updatedAt: Date;
@@ -107,7 +122,6 @@ export class PrismaProductRepository implements IProductRepository {
       product.slug,
       product.description || "",
       Number(product.price),
-      product.quantity,
       product.status,
       product.createdAt,
       product.updatedAt

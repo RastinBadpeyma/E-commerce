@@ -18,16 +18,15 @@ export class CreateProductUseCase {
       throw new InvalidPriceError(input.price);
     }
 
-    if (input.quantity < 0) {
-      throw new InvalidQuantityError(input.quantity);
-    }
+    // if (input.quantity < 0) {
+    //   throw new InvalidQuantityError(input.quantity);
+    // }
 
     const result : CreateProduct={
       title: input.title,
       slug: input.slug,
       description: input.description,
       price: input.price,
-      quantity: input.quantity,
     }
 
 

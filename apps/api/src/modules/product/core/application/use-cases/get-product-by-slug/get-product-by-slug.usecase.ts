@@ -26,10 +26,10 @@ export class GetProductBySlugUseCase {
         product.status === ProductStatus.OUT_OF_STOCK
           ? undefined
           : product.price,
-      quantity:
-        product.status === ProductStatus.OUT_OF_STOCK
-          ? undefined
-          : product.quantity,
+      // quantity:
+      //   product.status === ProductStatus.OUT_OF_STOCK
+      //     ? undefined
+      //     : product.quantity,
       status: product.status,
       updatedAt: product.updatedAt,
     };

@@ -12,5 +12,5 @@ export type ProductSnapshot = {
 
 
 export interface ProductPublic {
-  findProductId(productId: string): Promise<ProductSnapshot | null>;
+  findByIds(ids: string[]): Promise<ProductSnapshot[]>;
 }

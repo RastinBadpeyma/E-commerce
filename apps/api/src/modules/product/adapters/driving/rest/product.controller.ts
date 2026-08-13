@@ -28,7 +28,7 @@ export class ProductController {
        slug: dto.slug,
        description: dto.description,
        price: dto.price,
-       quantity: dto.quantity
+      //  quantity: dto.quantity
     }
     return this.createProductUseCase.execute(input);
   }
