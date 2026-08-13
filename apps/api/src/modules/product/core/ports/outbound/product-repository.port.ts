@@ -5,5 +5,6 @@ import { FindProducts, PaginatedProducts } from "./find-product.input";
 export interface IProductRepository {
   save(command: CreateProduct): Promise<Product>;
   findMany(input?: FindProducts): Promise<PaginatedProducts>;
+  findById(id: string): Promise<Product | null>;
   findBySlug(slug: string): Promise<Product | null>;
 }

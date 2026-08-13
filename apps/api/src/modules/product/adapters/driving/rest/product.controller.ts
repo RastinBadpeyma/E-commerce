@@ -1,10 +1,15 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { AuthPayload, AuthUserRole } from '@ecommerce/auth-contracts';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateProductUseCase } from 'src/modules/product/core/application/use-cases/create-product/create-product.usecase';
 import { GetProductsUseCase } from 'src/modules/product/core/application/use-cases/find-products/get-products.usecase';
 import { GetProductBySlugUseCase } from 'src/modules/product/core/application/use-cases/get-product-by-slug/get-product-by-slug.usecase';
 import { GetProductBySlugOutput, PaginatedProducts } from 'src/modules/product/core/ports/inbound/find-products';
 import { CreateProductInput } from 'src/modules/product/core/ports/inbound/create-product';
+import { JwtAuthGuard } from 'src/infrastructure/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/infrastructure/auth/guards/roles.guard';
+import { Roles } from 'src/infrastructure/auth/decorators/roles.decorator';
+import { CurrentUser } from 'src/infrastructure/auth/decorators/current-user.decorator';
 
 @Controller('products')
 export class ProductController {
@@ -15,7 +20,9 @@ export class ProductController {
   ) {}
 
   @Post()
-  create(@Body() dto: CreateProductDto) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AuthUserRole.ADMIN)
+  create(@Body() dto: CreateProductDto, @CurrentUser() user: AuthPayload) {
     const input: CreateProductInput ={
        title: dto.title,
        slug: dto.slug,
@@ -42,5 +49,5 @@ export class ProductController {
   async getProductBySlug(@Param('slug') slug: string): Promise<GetProductBySlugOutput | null> {
     const result =  this.getProductBySlugUseCase.execute(slug);
     return result;
-  }
+  }  
 }

@@ -13,6 +13,14 @@ import { IProductRepository } from "src/modules/product/core/ports/outbound/prod
 export class PrismaProductRepository implements IProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  async findById(id: string): Promise<Product | null> {
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+    });
+
+    return product ? this.toDomain(product) : null;
+  }
+
   async findBySlug(slug: string): Promise<Product | null> {
     const product = await this.prisma.product.findUnique({
       where: { slug },
