@@ -11,7 +11,6 @@ export class Product {
     public slug: string,
     public description: string,
     public price: number,
-    public quantity: number,
     public status: ProductStatus,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),

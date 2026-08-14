@@ -3,5 +3,5 @@ export interface CreateProduct {
   slug: string;
   description: string;
   price: number;
-  quantity: number;
+  // quantity: number;
 }

@@ -80,6 +80,53 @@ model Product {
   @@schema("product")
 }
 
+model Stock {
+  id        String   @id @default(uuid())
+
+  productId String   @unique
+
+  quantity  Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reservations StockReservation[]
+
+  @@schema("product")
+}
+
+enum StockReservationStatus {
+  ACTIVE
+  RELEASED
+  CONSUMED
+  EXPIRED
+
+  @@schema("product")
+}
+
+model StockReservation {
+  id        String   @id @default(uuid())
+
+  productId String
+
+  quantity  Int
+
+  status    StockReservationStatus @default(ACTIVE)
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stock Stock @relation(fields: [productId], references: [productId])
+
+  @@index([productId, status])
+  @@index([expiresAt])
+  @@index([status, expiresAt])
+
+  @@schema("product")
+}
+
 enum OrderStatus {
   PENDING
   CONFIRMED
