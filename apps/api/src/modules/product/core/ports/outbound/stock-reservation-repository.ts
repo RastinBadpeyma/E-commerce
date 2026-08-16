@@ -9,8 +9,20 @@ export interface StockReservationRepository {
     id: string,
   ): Promise<StockReservation | null>;
 
+  findByIds(
+    ids: string[],
+  ): Promise<StockReservation[]>;
+
   findActiveByProductId(
     productId: string,
+  ): Promise<StockReservation[]>;
+
+  findExpiredActive(
+    now: Date,
+  ): Promise<StockReservation[]>;
+
+  findByOrderId(
+    orderId: string,
   ): Promise<StockReservation[]>;
 
   update(

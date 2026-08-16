@@ -6,6 +6,7 @@ export interface StockReservationProps {
   quantity: number;
   status: StockReservationStatus;
   expiresAt: Date;
+  orderId?: string;
 }
 
 export class StockReservation {
@@ -65,6 +66,27 @@ export class StockReservation {
 
   get expiresAt(): Date {
     return this.props.expiresAt;
+  }
+
+  get orderId(): string | undefined {
+    return this.props.orderId;
+  }
+
+  get isLinkedToOrder(): boolean {
+    return this.props.orderId !== undefined;
+  }
+
+  linkToOrder(orderId: string): void {
+    if (
+      this.props.status !==
+      StockReservationStatus.ACTIVE
+    ) {
+      throw new Error(
+        'Only active reservations can be linked to an order',
+      );
+    }
+
+    this.props.orderId = orderId;
   }
 
   isActive(now = new Date()): boolean {

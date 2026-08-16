@@ -111,6 +111,8 @@ model StockReservation {
 
   quantity  Int
 
+  orderId   String? 
+
   status    StockReservationStatus @default(ACTIVE)
 
   expiresAt DateTime
@@ -121,6 +123,7 @@ model StockReservation {
   stock Stock @relation(fields: [productId], references: [productId])
 
   @@index([productId, status])
+  @@index([orderId])          
   @@index([expiresAt])
   @@index([status, expiresAt])
 

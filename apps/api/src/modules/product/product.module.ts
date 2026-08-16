@@ -7,11 +7,11 @@ import { GetProductBySlugUseCase } from './core/application/use-cases/get-produc
 import { AuthModule } from '../../infrastructure/auth/auth.module';
 import { ProductPublicApi } from './core/application/product-public-api';
 import { PRODUCT_PUBLIC } from './core/ports/inbound/product-public';
-import { ReserveStockUseCase } from './core/application/use-cases/reserve-stock/reserve-stock.usecase';
+import { STOCK_RESERVATION_PUBLIC } from './core/ports/inbound/stock-reservation-public';
+import { StockReservationPublicApi } from './core/application/stock-reservation-public-api';
 import { PrismaStockRepository } from './adapters/driven/prisma/prisma-stock.repository';
 import { PrismaStockReservationRepository } from './adapters/driven/prisma/prisma-stock-reservation.repository';
-import { PrismaTransactionManager } from './adapters/driven/prisma/prisma-transaction-manager';
-import { PrismaStockReservationService } from './adapters/driven/prisma/prisma-srock-reservation-reservation.service';
+import { PrismaStockReservationService } from './adapters/driven/prisma/prisma-stock-reservation-reservation.service';
 
 @Module({
   imports: [AuthModule],
@@ -20,7 +20,6 @@ import { PrismaStockReservationService } from './adapters/driven/prisma/prisma-s
     CreateProductUseCase,
     GetProductsUseCase,
     GetProductBySlugUseCase,
-    ReserveStockUseCase,
     {
       provide: 'IProductRepository',
       useClass: PrismaProductRepository,
@@ -30,6 +29,10 @@ import { PrismaStockReservationService } from './adapters/driven/prisma/prisma-s
       useClass: ProductPublicApi
     },
     {
+      provide: STOCK_RESERVATION_PUBLIC,
+      useClass: StockReservationPublicApi
+    },
+    {
       provide: 'STOCK_REPOSITORY',
       useClass: PrismaStockRepository,
     },
@@ -37,19 +40,11 @@ import { PrismaStockReservationService } from './adapters/driven/prisma/prisma-s
       provide: 'STOCK_RESERVATION_REPOSITORY',
       useClass: PrismaStockReservationRepository,
     },
-    // {
-    //   provide: 'TRANSACTION_MANAGER',
-    //   useClass: PrismaTransactionManager,
-    // },
     {
       provide: 'STOCK_RESERVATION_SERVICE',
       useClass: PrismaStockReservationService,
     }
-
-
-    
-    
   ],
-  exports:[PRODUCT_PUBLIC]
+  exports:[PRODUCT_PUBLIC, STOCK_RESERVATION_PUBLIC]
 })
 export class ProductModule {}

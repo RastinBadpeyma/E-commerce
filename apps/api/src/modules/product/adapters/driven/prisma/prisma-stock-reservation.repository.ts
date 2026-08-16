@@ -23,6 +23,7 @@ export class PrismaStockReservationRepository
         quantity: reservation.quantity,
         status: reservation.status,
         expiresAt: reservation.expiresAt,
+        orderId: reservation.orderId ?? null,
       },
     });
   }
@@ -48,7 +49,31 @@ export class PrismaStockReservationRepository
       status:
         record.status as StockReservationStatus,
       expiresAt: record.expiresAt,
+      orderId: record.orderId ?? undefined,
     });
+  }
+
+  async findByIds(
+    ids: string[],
+  ): Promise<StockReservation[]> {
+    const records =
+      await this.prisma.stockReservation.findMany({
+        where: {
+          id: { in: ids },
+        },
+      });
+
+    return records.map((record) =>
+      StockReservation.createFromPersistence({
+        id: record.id,
+        productId: record.productId,
+        quantity: record.quantity,
+        status:
+          record.status as StockReservationStatus,
+        expiresAt: record.expiresAt,
+        orderId: record.orderId ?? undefined,
+      }),
+    );
   }
 
   async findActiveByProductId(
@@ -73,6 +98,56 @@ export class PrismaStockReservationRepository
         status:
           record.status as StockReservationStatus,
         expiresAt: record.expiresAt,
+        orderId: record.orderId ?? undefined,
+      }),
+    );
+  }
+
+  async findExpiredActive(
+    now: Date,
+  ): Promise<StockReservation[]> {
+    const records =
+      await this.prisma.stockReservation.findMany({
+        where: {
+          status: 'ACTIVE',
+          expiresAt: {
+            lt: now,
+          },
+        },
+      });
+
+    return records.map((record) =>
+      StockReservation.createFromPersistence({
+        id: record.id,
+        productId: record.productId,
+        quantity: record.quantity,
+        status:
+          record.status as StockReservationStatus,
+        expiresAt: record.expiresAt,
+        orderId: record.orderId ?? undefined,
+      }),
+    );
+  }
+
+  async findByOrderId(
+    orderId: string,
+  ): Promise<StockReservation[]> {
+    const records =
+      await this.prisma.stockReservation.findMany({
+        where: {
+          orderId,
+        },
+      });
+
+    return records.map((record) =>
+      StockReservation.createFromPersistence({
+        id: record.id,
+        productId: record.productId,
+        quantity: record.quantity,
+        status:
+          record.status as StockReservationStatus,
+        expiresAt: record.expiresAt,
+        orderId: record.orderId ?? undefined,
       }),
     );
   }
@@ -86,6 +161,7 @@ export class PrismaStockReservationRepository
       },
       data: {
         status: reservation.status,
+        orderId: reservation.orderId ?? null,
       },
     });
   }

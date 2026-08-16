@@ -5,10 +5,18 @@ export interface ReserveStockResult {
   expiresAt: Date;
 }
 
+export interface ReserveStockItemCommand {
+  productId: string;
+  quantity: number;
+}
+
+export interface ReserveStockItemsResult {
+  reservationIds: string[];
+}
+
 export interface StockReservationService {
-  reserve(
-    productId: string,
-    quantity: number,
+  reserveItems(
+    items: ReserveStockItemCommand[],
     expiresAt: Date,
-  ): Promise<ReserveStockResult>;
+  ): Promise<ReserveStockItemsResult>;
 }
